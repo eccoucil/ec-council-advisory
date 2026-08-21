@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdvisoryBoardMember {
+  id            Int            @id @default(autoincrement())
+  name          String
+  title         String
+  email         String?        @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  otpChallenges OtpChallenge[]
+
+  @@unique([name, title])
+  @@map("advisory_board_members")
+}
+
+model OtpChallenge {
+  id           String               @id @default(cuid())
+  memberId     Int
+  member       AdvisoryBoardMember  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  codeHash     String
+  emailSentTo  String
+  expiresAt    DateTime
+  attemptCount Int                  @default(0)
+  consumedAt   DateTime?
+  createdAt    DateTime             @default(now())
+
+  @@index([memberId, createdAt])
+  @@map("otp_challenges")
+}

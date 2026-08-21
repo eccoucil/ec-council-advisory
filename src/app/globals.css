@@ -1,0 +1,359 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #14110c;
+  --ink-soft: #1e1a14;
+  --paper: #f3ead6;
+  --paper-deep: #e7dcc3;
+  --rule: #c9bc9a;
+  --crimson: #a31b1b;
+  --muted: #7a6e5a;
+}
+
+@theme inline {
+  --color-background: var(--ink);
+  --color-foreground: var(--paper);
+  --font-sans: var(--font-ibm-sans);
+  --font-mono: var(--font-ibm-mono);
+  --font-display: var(--font-cormorant);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans), "IBM Plex Sans", sans-serif;
+}
+
+body::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+
+.gate {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.95fr);
+}
+
+.gate-brief,
+.gate-access {
+  padding: 4.5rem 4rem;
+}
+
+.gate-brief {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  background:
+    linear-gradient(180deg, rgba(163, 27, 27, 0.16), transparent 42%),
+    var(--ink);
+  border-right: 1px solid #3a3328;
+}
+
+.eyebrow,
+.kicker,
+.roster-count,
+.field-label,
+.gate-brief dt {
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+}
+
+.eyebrow,
+.kicker {
+  margin: 0;
+  color: var(--rule);
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.gate-brief h1 {
+  margin: 0;
+  max-width: 11ch;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: clamp(3.4rem, 7vw, 6.4rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+}
+
+.gate-brief h1 span {
+  display: block;
+  color: #f7d7c8;
+}
+
+.gate-brief > p,
+.lede {
+  max-width: 38rem;
+  margin: 0;
+  color: #d8cbb0;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.gate-brief dl {
+  display: flex;
+  gap: 2.5rem;
+  margin: 1.5rem 0 0;
+}
+
+.gate-brief dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.gate-brief dd {
+  margin: 0.35rem 0 0;
+  font-size: 1.4rem;
+}
+
+.gate-access {
+  display: flex;
+  align-items: center;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.access-panel {
+  width: min(100%, 34rem);
+}
+
+.panel-title {
+  margin: 0.35rem 0 0.8rem;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: 2.7rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.access-panel .lede,
+.board-shell .lede {
+  margin-bottom: 1.6rem;
+  color: #5d5344;
+}
+
+.board-shell .lede {
+  color: #d8cbb0;
+}
+
+.kicker {
+  color: var(--crimson);
+}
+
+.roster {
+  position: relative;
+}
+
+.roster-trigger,
+.primary-btn,
+.roster-search,
+.otp-input {
+  width: 100%;
+  border: 1px solid #c4b394;
+  background: #fffaf0;
+  color: var(--ink);
+}
+
+.roster-trigger,
+.primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.4rem;
+  padding: 0 1rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.roster-count,
+.field-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.roster-panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  border: 1px solid #c4b394;
+  background: #fffaf0;
+  box-shadow: 8px 18px 40px rgba(20, 17, 12, 0.16);
+}
+
+.roster-search {
+  border: 0;
+  border-bottom: 1px solid #c4b394;
+  padding: 0.9rem 1rem;
+  outline: none;
+}
+
+.roster-list {
+  max-height: 22rem;
+  overflow: auto;
+}
+
+.roster-item {
+  display: grid;
+  width: 100%;
+  padding: 0.85rem 1rem 0.9rem 1.05rem;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roster-item.is-active,
+.roster-item:hover {
+  border-left-color: var(--crimson);
+  background: #f4e6c8;
+}
+
+.roster-name {
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.roster-title,
+.roster-empty,
+.status-line {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.roster-empty {
+  margin: 0;
+  padding: 1rem;
+}
+
+.status-line,
+.form-error {
+  margin: 0.9rem 0 0;
+}
+
+.form-error {
+  color: var(--crimson);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.45rem;
+}
+
+.otp-input {
+  height: 4rem;
+  margin-bottom: 1rem;
+  padding: 0 1rem;
+  font-family: var(--font-mono), "IBM Plex Mono", monospace;
+  font-size: 1.7rem;
+  letter-spacing: 0.42em;
+}
+
+.primary-btn {
+  justify-content: center;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.roster-trigger-copy {
+  display: grid;
+  gap: 0.15rem;
+  text-align: left;
+}
+
+.roster-trigger-name {
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+.send-otp-btn {
+  margin-top: 1rem;
+}
+
+.primary-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.primary-btn:disabled.sending,
+.roster-item:disabled,
+.roster-trigger:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.text-btn {
+  display: inline-flex;
+  margin-top: 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--crimson);
+  font: inherit;
+  cursor: pointer;
+}
+
+.board-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 4.5rem 4rem 5rem;
+}
+
+.board-shell h1 {
+  margin: 0.4rem 0 1rem;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: clamp(3rem, 7vw, 5.6rem);
+  line-height: 0.94;
+}
+
+@media (max-width: 900px) {
+  .gate {
+    grid-template-columns: 1fr;
+  }
+
+  .gate-brief,
+  .gate-access,
+  .board-shell {
+    padding: 2.4rem 1.4rem 3rem;
+  }
+
+  .gate-brief {
+    min-height: 42dvh;
+    border-right: 0;
+    border-bottom: 1px solid #3a3328;
+  }
+}
