@@ -458,7 +458,7 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
             <Panel
               accent={INK}
               title="Latest verbatims"
-              sub="Shown by seat number · analyst review before any quote leaves"
+              sub="Attributed internally (D3); exports strip identity"
             >
               {verbatims.length === 0 ? (
                 <p className="m-0 text-[13px] text-[#8E949C]">

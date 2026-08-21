@@ -239,7 +239,7 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
     prisma.pulseSubmission.findMany({ select: { submittedAt: true } }),
     prisma.advisoryBoardMember.findMany({
       where: { role: "MEMBER" },
-      select: { id: true },
+      select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
     prisma.otpChallenge.findMany({
@@ -250,12 +250,8 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
 
   const rows = rawAnswers as AnswerRow[];
 
-  // Verbatims are shown to analysts by seat number, never by name.
   const memberLabels = new Map(
-    members.map((member, index) => [
-      member.id,
-      `Member ${String(index + 1).padStart(2, "0")}`,
-    ]),
+    members.map((member) => [member.id, member.name]),
   );
 
   const consensus = yesPct(rows, "6.2");
@@ -424,6 +420,25 @@ export type SectionVerbatim = {
 
 export type AgendaNeighbour = { section: number; title: string };
 
+export type MemberCell = {
+  code: string;
+  /** null when this member left the question unanswered. */
+  display: string | null;
+  tone: "good" | "warn" | "bad" | "neutral";
+};
+
+export type SectionMemberRow = {
+  memberId: number;
+  name: string;
+  initials: string;
+  submitted: boolean;
+  cells: MemberCell[];
+  gaps: string[];
+  liked: string | null;
+  disliked: string | null;
+  comments: Array<{ code: string; text: string }>;
+};
+
 export type AgendaSection = {
   section: number;
   mark: string;
@@ -440,6 +455,10 @@ export type AgendaSection = {
   weaknessResponses: number;
   lanes: Record<LaneKey, SectionVerbatim[]>;
   laneTotals: Record<LaneKey, number>;
+  /** Column order for the per-member table. */
+  scoredCodes: string[];
+  memberRows: SectionMemberRow[];
+  silent: number;
   decision: string;
   previous: AgendaNeighbour | null;
   next: AgendaNeighbour | null;
@@ -598,6 +617,49 @@ function decisionSignal(
   return parts.join(" ");
 }
 
+const LIKERT_SHORT = ["1 · strongly disagree", "2 · disagree", "3 · neutral", "4 · agree", "5 · strongly agree"];
+
+function cellFor(
+  question: PulseQuestionSeed,
+  value: unknown,
+): MemberCell {
+  if (value === undefined || value === null) {
+    return { code: question.code, display: null, tone: "neutral" };
+  }
+
+  if (question.type === "LIKERT" && typeof value === "number") {
+    return {
+      code: question.code,
+      display: LIKERT_SHORT[value - 1] ?? String(value),
+      tone: value >= 4 ? "good" : value === 3 ? "neutral" : "bad",
+    };
+  }
+
+  if (question.type === "YESNO") {
+    return {
+      code: question.code,
+      display: value === "YES" ? "Yes" : "No",
+      tone: value === "YES" ? "good" : "bad",
+    };
+  }
+
+  if (question.type === "PMF") {
+    const label =
+      value === "VERY"
+        ? "Very disappointed"
+        : value === "SOMEWHAT"
+          ? "Somewhat"
+          : "Not disappointed";
+    return {
+      code: question.code,
+      display: label,
+      tone: value === "VERY" ? "good" : value === "SOMEWHAT" ? "warn" : "bad",
+    };
+  }
+
+  return { code: question.code, display: String(value), tone: "neutral" };
+}
+
 export async function loadAgendaSection(
   section: number,
 ): Promise<AgendaSection | null> {
@@ -610,7 +672,7 @@ export async function loadAgendaSection(
   );
   const questionIds = new Set(sectionQuestions.map((question) => question.id));
 
-  const [rawAnswers, members] = await Promise.all([
+  const [rawAnswers, members, submissions] = await Promise.all([
     prisma.pulseAnswer.findMany({
       where: { questionId: { in: [...questionIds] } },
       select: {
@@ -623,17 +685,15 @@ export async function loadAgendaSection(
     }),
     prisma.advisoryBoardMember.findMany({
       where: { role: "MEMBER" },
-      select: { id: true },
+      select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    prisma.pulseSubmission.findMany({ select: { memberId: true } }),
   ]);
 
   const rows = rawAnswers as AnswerRow[];
   const memberLabels = new Map(
-    members.map((member, index) => [
-      member.id,
-      `Member ${String(index + 1).padStart(2, "0")}`,
-    ]),
+    members.map((member) => [member.id, member.name]),
   );
 
   const isProduct = PRODUCT_SECTIONS.includes(section);
@@ -815,6 +875,54 @@ export async function loadAgendaSection(
     }
   }
 
+  const submittedIds = new Set(submissions.map((row) => row.memberId));
+  const scoredCodes = scored.map((question) => question.code);
+  const gapOptions = new Map(
+    (sectionQuestions.find((question) => question.type === "MULTI")?.options ?? []).map(
+      (option) => [option.id, option.label],
+    ),
+  );
+
+  const byMember = new Map<number, Map<string, AnswerRow>>();
+  for (const row of rows) {
+    const question = questionById.get(row.questionId);
+    if (!question) {
+      continue;
+    }
+    const bucket = byMember.get(row.memberId) ?? new Map<string, AnswerRow>();
+    bucket.set(question.code, row);
+    byMember.set(row.memberId, bucket);
+  }
+
+  const memberRows: SectionMemberRow[] = members
+    .filter((member) => byMember.has(member.id))
+    .map((member) => {
+      const answers = byMember.get(member.id)!;
+      const dual = answers.get(`${section}.6`)?.valueJson;
+      const gapValue = answers.get(`${section}.5`)?.valueJson;
+
+      return {
+        memberId: member.id,
+        name: member.name,
+        initials: initialsFor(member.name),
+        submitted: submittedIds.has(member.id),
+        cells: scored.map((question) =>
+          cellFor(question, answers.get(question.code)?.valueJson),
+        ),
+        gaps: Array.isArray(gapValue)
+          ? gapValue
+              .filter((id): id is string => typeof id === "string")
+              .map((id) => gapOptions.get(id) ?? id)
+          : [],
+        liked: isDualText(dual) && dual.liked.trim() ? dual.liked.trim() : null,
+        disliked:
+          isDualText(dual) && dual.disliked.trim() ? dual.disliked.trim() : null,
+        comments: [...answers.entries()]
+          .filter(([, row]) => row.commentText?.trim())
+          .map(([code, row]) => ({ code, text: row.commentText!.trim() })),
+      };
+    });
+
   const position = AGENDA_SECTIONS.indexOf(section);
   const neighbour = (offset: number): AgendaNeighbour | null => {
     const id = AGENDA_SECTIONS[position + offset];
@@ -859,6 +967,9 @@ export async function loadAgendaSection(
       disliked: lanes.disliked.length,
       gaps: lanes.gaps.length,
     },
+    scoredCodes,
+    memberRows,
+    silent: members.length - memberRows.length,
     decision: decisionSignal(
       titleFor(section),
       consensusRate,

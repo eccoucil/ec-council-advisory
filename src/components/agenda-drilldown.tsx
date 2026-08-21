@@ -9,8 +9,10 @@ import {
 import type {
   AgendaSection,
   LaneKey,
+  MemberCell,
   QuestionBreakdown,
   SectionKpi,
+  SectionMemberRow,
   SectionVerbatim,
   Tone,
 } from "@/lib/pulse-metrics";
@@ -29,6 +31,7 @@ const GREEN = "#0F6E5C";
 const AMBER = "#B87514";
 const RULE = "#E4E3DE";
 const DIM = "#8E949C";
+const BODY = "#5A6069";
 
 const LANES: Array<{
   key: LaneKey;
@@ -129,6 +132,173 @@ function QuestionRow({
               );
             })}
       </div>
+    </div>
+  );
+}
+
+const CELL_TONE: Record<MemberCell["tone"], { color: string; background: string }> = {
+  good: { color: GREEN, background: "#E8F2EE" },
+  warn: { color: AMBER, background: "#FBF1E2" },
+  bad: { color: "#B4483C", background: "#FAEDEF" },
+  neutral: { color: BODY, background: "#F4F3F0" },
+};
+
+function MemberTable({
+  codes,
+  rows,
+  silent,
+}: {
+  codes: string[];
+  rows: SectionMemberRow[];
+  silent: number;
+}) {
+  if (rows.length === 0) {
+    return (
+      <p className="m-0 text-[13px] text-[#8E949C]">
+        No member has answered this section yet.
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-[760px] border-collapse">
+          <thead>
+            <tr className="bg-[#F4F3F0]">
+              <th
+                className="border-b px-3 py-[11px] text-left font-[family-name:var(--font-pulse-mono)] text-[9.5px] font-normal tracking-[0.8px] text-[#8E949C]"
+                style={{ borderColor: RULE }}
+                scope="col"
+              >
+                BOARD MEMBER
+              </th>
+              {codes.map((code) => (
+                <th
+                  key={code}
+                  className="border-b px-3 py-[11px] text-left font-[family-name:var(--font-pulse-mono)] text-[9.5px] font-normal tracking-[0.8px] text-[#8E949C]"
+                  style={{ borderColor: RULE }}
+                  scope="col"
+                >
+                  {code}
+                </th>
+              ))}
+              <th
+                className="border-b px-3 py-[11px] text-left font-[family-name:var(--font-pulse-mono)] text-[9.5px] font-normal tracking-[0.8px] text-[#8E949C]"
+                style={{ borderColor: RULE }}
+                scope="col"
+              >
+                WHAT IS MISSING
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.memberId} className="border-b" style={{ borderColor: RULE }}>
+                <td className="px-3 py-[11px]">
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border bg-[#F4F3F0] text-[9.5px] font-semibold text-[#5A6069]"
+                      style={{ borderColor: "#CFCEC8" }}
+                    >
+                      {row.initials}
+                    </span>
+                    <span className="flex flex-col">
+                      <span className="whitespace-nowrap text-[13px] font-medium text-[#14161A]">
+                        {row.name}
+                      </span>
+                      <span
+                        className="font-[family-name:var(--font-pulse-mono)] text-[9.5px] tracking-[0.6px]"
+                        style={{ color: row.submitted ? GREEN : AMBER }}
+                      >
+                        {row.submitted ? "SUBMITTED" : "IN PROGRESS"}
+                      </span>
+                    </span>
+                  </span>
+                </td>
+                {row.cells.map((cell) => (
+                  <td key={cell.code} className="px-3 py-[11px]">
+                    {cell.display === null ? (
+                      <span className="text-[12.5px] text-[#8E949C]">—</span>
+                    ) : (
+                      <span
+                        className="inline-block whitespace-nowrap rounded-[3px] px-[9px] py-[4px] text-[11.5px] font-medium"
+                        style={{
+                          color: CELL_TONE[cell.tone].color,
+                          backgroundColor: CELL_TONE[cell.tone].background,
+                        }}
+                      >
+                        {cell.display}
+                      </span>
+                    )}
+                  </td>
+                ))}
+                <td className="px-3 py-[11px] text-[12.5px] text-[#5A6069]">
+                  {row.gaps.length > 0 ? row.gaps.join(", ") : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {rows.some((row) => row.liked || row.disliked || row.comments.length > 0) ? (
+        <div className="flex w-full flex-col gap-[10px]">
+          {rows
+            .filter((row) => row.liked || row.disliked || row.comments.length > 0)
+            .map((row) => (
+              <div
+                key={row.memberId}
+                className="flex w-full flex-col gap-2 rounded-[3px] border bg-[#F4F3F0] px-4 py-3"
+                style={{ borderColor: RULE }}
+              >
+                <p className="m-0 text-[12.5px] font-semibold text-[#14161A]">
+                  {row.name}
+                </p>
+                {row.liked ? (
+                  <p className="m-0 text-[12.5px]/[19px] text-[#5A6069]">
+                    <span
+                      className="font-[family-name:var(--font-pulse-mono)] text-[9.5px] tracking-[0.8px]"
+                      style={{ color: GREEN }}
+                    >
+                      LIKED{" "}
+                    </span>
+                    {row.liked}
+                  </p>
+                ) : null}
+                {row.disliked ? (
+                  <p className="m-0 text-[12.5px]/[19px] text-[#5A6069]">
+                    <span
+                      className="font-[family-name:var(--font-pulse-mono)] text-[9.5px] tracking-[0.8px]"
+                      style={{ color: AMBER }}
+                    >
+                      DISLIKED{" "}
+                    </span>
+                    {row.disliked}
+                  </p>
+                ) : null}
+                {row.comments.map((comment) => (
+                  <p
+                    key={comment.code}
+                    className="m-0 text-[12.5px]/[19px] text-[#5A6069]"
+                  >
+                    <span className="font-[family-name:var(--font-pulse-mono)] text-[9.5px] tracking-[0.8px] text-[#8E949C]">
+                      {comment.code}{" "}
+                    </span>
+                    {comment.text}
+                  </p>
+                ))}
+              </div>
+            ))}
+        </div>
+      ) : null}
+
+      {silent > 0 ? (
+        <p className="m-0 text-[11.5px] text-[#8E949C]">
+          {silent} member{silent === 1 ? " has" : "s have"} not answered this
+          section.
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -371,6 +541,18 @@ export function AgendaDrilldown({ data }: { data: AgendaSection }) {
           </div>
         </div>
 
+        <Panel
+          accent={TONE_HEX[data.tone]}
+          title="Responses by board member"
+          sub="Attributed internally (D3); exports strip identity"
+        >
+          <MemberTable
+            codes={data.scoredCodes}
+            rows={data.memberRows}
+            silent={data.silent}
+          />
+        </Panel>
+
         <div className="flex w-full flex-col gap-5 xl:flex-row">
           {LANES.map((lane) => (
             <Lane
@@ -383,10 +565,6 @@ export function AgendaDrilldown({ data }: { data: AgendaSection }) {
           ))}
         </div>
 
-        <p className="m-0 text-[11.5px] text-[#8E949C]">
-          Verbatims are shown by seat number. Pain-point tagging is analyst-approved
-          before it counts toward the leaderboard — nothing is auto-published.
-        </p>
       </div>
     </div>
   );

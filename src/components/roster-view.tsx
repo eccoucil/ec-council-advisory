@@ -68,7 +68,7 @@ const POLICIES = [
     accent: "#4A83C7",
     Icon: ShieldCheckIcon,
     body: () =>
-      "Attributed-internal, anonymous-external (D3). This roster shows member identity; the dashboard shows verbatims by seat number and every export strips it.",
+      "Attributed-internal, anonymous-external (D3). The console shows member identity throughout; every export strips it before anything leaves EC-Council.",
   },
 ];
 

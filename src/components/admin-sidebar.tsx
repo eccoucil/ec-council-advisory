@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import {
-  FileDownIcon,
   LayoutDashboardIcon,
   ListChecksIcon,
-  QuoteIcon,
-  TagsIcon,
   UsersIcon,
 } from "@/components/admin-icons";
 
@@ -16,18 +13,10 @@ type AdminSidebarProps = {
   active?: "overview" | "agenda" | "roster";
 };
 
-/**
- * The rail keeps the full console shape in the design order. Entries without
- * an href are planned sections, so they render as plain labels rather than
- * dead links.
- */
 const NAV = [
   { key: "overview", label: "Overview", href: "/admin", Icon: LayoutDashboardIcon },
   { key: "agenda", label: "Agenda items", href: "/admin/agenda", Icon: ListChecksIcon },
-  { key: "themes", label: "Themes & tagging", Icon: TagsIcon },
-  { key: "verbatims", label: "Verbatims", Icon: QuoteIcon },
   { key: "roster", label: "Roster & invites", href: "/admin/roster", Icon: UsersIcon },
-  { key: "export", label: "Export readout", Icon: FileDownIcon },
 ] as const;
 
 function initials(name: string) {
@@ -55,8 +44,7 @@ export function AdminSidebar({
 
         <nav className="flex w-full flex-col gap-1">
           {NAV.map((item) => {
-            const { key, label, Icon } = item;
-            const href = "href" in item ? item.href : undefined;
+            const { key, label, href, Icon } = item;
 
             if (key === active) {
               return (
@@ -77,29 +65,15 @@ export function AdminSidebar({
               );
             }
 
-            const body = (
-              <>
-                <Icon className="h-4 w-4 shrink-0 text-[#8A9099]" />
-                <span className="flex-1 text-[13.5px] text-[#8A9099]">{label}</span>
-              </>
-            );
-
-            return href ? (
+            return (
               <Link
                 key={key}
                 className="flex items-center gap-[11px] rounded-[3px] py-[11px] pl-[17px] pr-[14px] hover:bg-[#1B1F25]"
                 href={href}
               >
-                {body}
+                <Icon className="h-4 w-4 shrink-0 text-[#8A9099]" />
+                <span className="flex-1 text-[13.5px] text-[#8A9099]">{label}</span>
               </Link>
-            ) : (
-              <div
-                key={key}
-                className="flex items-center gap-[11px] py-[11px] pl-[17px] pr-[14px]"
-                title="Planned section"
-              >
-                {body}
-              </div>
             );
           })}
         </nav>
