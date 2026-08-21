@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { OtpForm } from "@/components/otp-form";
+import { OtpAccess } from "@/components/otp-access";
 import { getAccessIntent } from "@/lib/access-intent";
-import { maskEmail } from "@/lib/otp";
+import { maskEmail, OTP_LENGTH, OTP_MAX_ATTEMPTS } from "@/lib/otp";
 import { prisma } from "@/lib/prisma";
 
 export default async function OtpPage() {
@@ -12,7 +12,7 @@ export default async function OtpPage() {
 
   const member = await prisma.advisoryBoardMember.findUnique({
     where: { id: intent.memberId },
-    select: { name: true, email: true },
+    select: { id: true, name: true, email: true },
   });
 
   const email = member?.email?.trim();
@@ -20,23 +20,28 @@ export default async function OtpPage() {
     redirect("/");
   }
 
-  return (
-    <main className="gate">
-      <section className="gate-brief">
-        <p className="eyebrow">EC-Council · Restricted</p>
-        <h1>
-          Enter your
-          <span>access code</span>
-        </h1>
-        <p>
-          The code was sent to the email on file for this board member. It
-          expires in 10 minutes.
-        </p>
-      </section>
+  const challenge = await prisma.otpChallenge.findFirst({
+    where: {
+      memberId: member.id,
+      consumedAt: null,
+      expiresAt: { gt: new Date() },
+    },
+    orderBy: { createdAt: "desc" },
+    select: { expiresAt: true, attemptCount: true },
+  });
 
-      <section className="gate-access">
-        <OtpForm name={member.name} maskedEmail={maskEmail(email)} />
-      </section>
-    </main>
+  if (!challenge) {
+    redirect("/");
+  }
+
+  return (
+    <OtpAccess
+      name={member.name}
+      maskedEmail={maskEmail(email)}
+      codeLength={OTP_LENGTH}
+      expiresAt={challenge.expiresAt.toISOString()}
+      attemptCount={challenge.attemptCount}
+      maxAttempts={OTP_MAX_ATTEMPTS}
+    />
   );
 }

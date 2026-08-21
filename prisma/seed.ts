@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "../src/generated/prisma";
+import { pulseQuestions } from "../src/lib/pulse-instrument";
+import { reviewQuestions } from "./questions";
 
 const prisma = new PrismaClient();
 
@@ -216,8 +218,54 @@ async function main() {
     where: { email: { not: null } },
   });
 
+  for (const question of reviewQuestions) {
+    await prisma.reviewQuestion.upsert({
+      where: { id: question.id },
+      create: question,
+      update: {
+        section: question.section,
+        sectionTitle: question.sectionTitle,
+        polarity: question.polarity,
+        isGate: question.isGate,
+        isRevised: question.isRevised,
+        prompt: question.prompt,
+        basis: question.basis,
+      },
+    });
+  }
+
+  for (const question of pulseQuestions) {
+    await prisma.pulseQuestion.upsert({
+      where: { id: question.id },
+      create: {
+        id: question.id,
+        section: question.section,
+        code: question.code,
+        sortOrder: question.sortOrder,
+        type: question.type,
+        prompt: question.prompt,
+        required: question.required,
+        maxSelect: question.maxSelect ?? null,
+        options: question.options ?? Prisma.DbNull,
+      },
+      update: {
+        section: question.section,
+        code: question.code,
+        sortOrder: question.sortOrder,
+        type: question.type,
+        prompt: question.prompt,
+        required: question.required,
+        maxSelect: question.maxSelect ?? null,
+        options: question.options ?? Prisma.DbNull,
+      },
+    });
+  }
+
+  const questionCount = await prisma.reviewQuestion.count();
+  const pulseCount = await prisma.pulseQuestion.count();
+
   console.log(
-    `Seeded ${count} advisory board members (${withEmail} with email).`,
+    `Seeded ${count} advisory board members (${withEmail} with email), ${questionCount} review questions, and ${pulseCount} pulse questions.`,
   );
 }
 

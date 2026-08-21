@@ -1,23 +1,11 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Arimo } from "next/font/google";
 import "./globals.css";
 
-const sans = IBM_Plex_Sans({
-  variable: "--font-ibm-sans",
+const sans = Arimo({
+  variable: "--font-arimo",
   subsets: ["latin"],
-  weight: ["400", "500"],
-});
-
-const display = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
-
-const mono = IBM_Plex_Mono({
-  variable: "--font-ibm-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -30,10 +18,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${display.variable} ${mono.variable} h-full antialiased`}
+      className={`${sans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full" suppressHydrationWarning>
+      <body className={`${sans.className} min-h-full`} suppressHydrationWarning>
         {children}
       </body>
     </html>

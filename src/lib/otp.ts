@@ -41,6 +41,9 @@ export function maskEmail(email: string) {
     return "your email";
   }
 
-  const visible = local.slice(0, 1);
-  return `${visible}***@${domain}`;
+  if (local.length === 1) {
+    return `${local}••••@${domain}`;
+  }
+
+  return `${local.slice(0, 1)}••••${local.slice(-1)}@${domain}`;
 }
