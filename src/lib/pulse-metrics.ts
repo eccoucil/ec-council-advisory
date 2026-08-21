@@ -927,7 +927,7 @@ export async function loadAgendaSection(
         gaps: Array.isArray(gapValue)
           ? gapValue
               .filter((id): id is string => typeof id === "string")
-              .map((id) => gapOptions.get(id) ?? id)
+              .map((id) => gapOptions.get(id) ?? `${id} (retired option)`)
           : [],
         liked: isDualText(dual) && dual.liked.trim() ? dual.liked.trim() : null,
         disliked:

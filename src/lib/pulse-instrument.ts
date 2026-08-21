@@ -19,9 +19,7 @@ export const GAP_OPTIONS = [
   { id: "coverage", label: "Coverage / depth" },
   { id: "integration", label: "Integration with existing stack" },
   { id: "evidence", label: "Evidence & reporting" },
-  { id: "pricing", label: "Pricing-model clarity" },
   { id: "deployment", label: "Deployment model" },
-  { id: "regulatory", label: "Regulatory defensibility" },
   { id: "differentiation", label: "Differentiation vs incumbents" },
   { id: "nothing", label: "Nothing major" },
 ] as const;
