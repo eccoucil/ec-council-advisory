@@ -7,17 +7,24 @@ type AccessCodeEmail = {
 };
 
 /**
- * Without a Resend key there is no way to deliver. In production that is a
- * misconfiguration and must fail loudly; in development it would block the
- * whole sign-in flow, so the message is written to the server log instead.
+ * Without a Resend key there is no way to deliver, and pretending otherwise is
+ * worse than failing: the caller records an OTP challenge and tells the member
+ * a code is on its way. So this fails closed everywhere unless a developer
+ * opts in explicitly, and the opt-in cannot be honoured in production.
+ *
+ * MAIL_CONSOLE_FALLBACK=true prints the message — access codes included — to
+ * the server log. Only ever set it on a local machine.
  */
 function deliveryUnavailable(summary: string) {
-  if (process.env.NODE_ENV === "production") {
+  const optedIn = process.env.MAIL_CONSOLE_FALLBACK === "true";
+  const local = process.env.NODE_ENV !== "production";
+
+  if (!optedIn || !local) {
     return new Error("RESEND_API_KEY is not set");
   }
 
   console.warn(
-    `[mail] RESEND_API_KEY is not set — nothing was sent.\n[mail] ${summary}`,
+    `[mail] MAIL_CONSOLE_FALLBACK is on and RESEND_API_KEY is not set — nothing was delivered.\n[mail] ${summary}`,
   );
   return null;
 }
