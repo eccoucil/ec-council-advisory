@@ -219,7 +219,7 @@ function productBlock(section: number, prefix: string): PulseQuestionSeed[] {
       code: `${section}.6`,
       sortOrder: 6,
       type: "DUAL_TEXT",
-      prompt: "One thing you liked. One thing you disliked.",
+      prompt: "Three things you liked. Three things you disliked.",
       required: false,
     },
   ];
@@ -385,6 +385,6 @@ export function questionKindLabel(question: PulseQuestionSeed) {
     case "TEXT":
       return `SHORT FREE-TEXT${required}`;
     case "DUAL_TEXT":
-      return `TWO SHORT FREE-TEXT FIELDS${required}`;
+      return `LIKED / DISLIKED · UP TO THREE EACH${required}`;
   }
 }

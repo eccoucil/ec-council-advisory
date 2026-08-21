@@ -256,7 +256,7 @@ function MemberTable({
                   {row.name}
                 </p>
                 {row.liked ? (
-                  <p className="m-0 text-[12.5px]/[19px] text-[#5A6069]">
+                  <p className="m-0 whitespace-pre-line text-[12.5px]/[19px] text-[#5A6069]">
                     <span
                       className="font-[family-name:var(--font-pulse-mono)] text-[9.5px] tracking-[0.8px]"
                       style={{ color: GREEN }}
@@ -348,7 +348,7 @@ function Lane({
               >
                 {title}
               </figcaption>
-              <blockquote className="m-0 text-[13px]/[21px] text-[#14161A]">
+              <blockquote className="m-0 whitespace-pre-line text-[13px]/[21px] text-[#14161A]">
                 &ldquo;{item.quote}&rdquo;
               </blockquote>
               <p className="m-0 font-[family-name:var(--font-pulse-mono)] text-[10px] text-[#8E949C]">

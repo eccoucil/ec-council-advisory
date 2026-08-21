@@ -486,7 +486,7 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
                           >
                             {entry.lane}
                           </span>
-                          <p className="m-0 text-[13px]/[20px] text-[#14161A]">
+                          <p className="m-0 whitespace-pre-line text-[13px]/[20px] text-[#14161A]">
                             &ldquo;{entry.quote}&rdquo;
                           </p>
                           <p className="m-0 font-[family-name:var(--font-pulse-mono)] text-[10px] text-[#8E949C]">

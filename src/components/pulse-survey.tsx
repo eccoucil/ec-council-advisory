@@ -669,7 +669,7 @@ function DualText({
           </span>
           <textarea
             value={liked}
-            placeholder="Type your answer…"
+            placeholder="Up to three — one per line"
             rows={5}
             onChange={(event) => onChange(event.target.value, disliked)}
           />
@@ -681,7 +681,7 @@ function DualText({
           </span>
           <textarea
             value={disliked}
-            placeholder="Type your answer…"
+            placeholder="Up to three — one per line"
             rows={5}
             onChange={(event) => onChange(liked, event.target.value)}
           />
