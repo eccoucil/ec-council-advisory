@@ -317,7 +317,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     sortOrder: 2,
     type: "YESNO",
     prompt:
-      "Do you approve the direction presented today and support proceeding to market?",
+      "Do you approve the direction presented on 27th August and support proceeding to market?",
     required: true,
   },
   {
@@ -325,11 +325,9 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     section: 6,
     code: "6.3",
     sortOrder: 3,
-    type: "MULTI",
-    prompt: "Select the top 3 pain points EC-Council should prioritise next.",
+    type: "TEXT",
+    prompt: "Name the top 3 pain points EC-Council should prioritise next.",
     required: true,
-    maxSelect: 3,
-    options: [...PAIN_TAXONOMY],
   },
   {
     id: "s6-4",

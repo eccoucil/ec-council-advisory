@@ -17,6 +17,9 @@ const AGENDA_SECTIONS = [1, 2, 3, 4, 5];
 const PRODUCT_SECTIONS = [2, 3, 4, 5];
 
 /** Sean Ellis threshold: at or above this, PMF reads as a strong signal. */
+/** The question whose selections drive the pain-point leaderboard. */
+export const PAIN_TAXONOMY_CODE = "0.1";
+
 export const PMF_STRONG_THRESHOLD = 40;
 export const RESPONSE_RATE_TARGET = 70;
 export const CONSENSUS_THRESHOLD = 66;
@@ -198,8 +201,12 @@ function collectVerbatims(rows: AnswerRow[], memberLabels: Map<number, string>) 
       continue;
     }
 
-    // 6.4 asks what today's solutions miss, so it reads as a gap.
-    if (question.code === "6.4" && typeof row.valueJson === "string") {
+    // The closing section's free text is all about what is missing.
+    if (
+      question.section === 6 &&
+      question.type === "TEXT" &&
+      typeof row.valueJson === "string"
+    ) {
       const quote = row.valueJson.trim();
       if (quote) {
         verbatims.push({
@@ -311,9 +318,10 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
     };
   });
 
+  // 6.3 became free text, so 0.1 is the only structured taxonomy question left.
   const painCounts = new Map<string, number>();
   const painResponders = new Set<number>();
-  for (const row of answersFor(rows, "6.3")) {
+  for (const row of answersFor(rows, PAIN_TAXONOMY_CODE)) {
     if (!Array.isArray(row.valueJson)) {
       continue;
     }

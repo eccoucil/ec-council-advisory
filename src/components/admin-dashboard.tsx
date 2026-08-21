@@ -416,7 +416,7 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
             <Panel
               accent="#C4122F"
               title="Pain-point leaderboard"
-              sub={`Taxonomy selections on 6.3 · n=${painPointResponses}`}
+              sub={`Taxonomy selections on 0.1 · n=${painPointResponses}`}
             >
               {painPoints.length === 0 ? (
                 <p className="m-0 text-[13px] text-[#8E949C]">
