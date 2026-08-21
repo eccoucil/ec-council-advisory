@@ -21,8 +21,7 @@ export function AdminLoginForm() {
   }
 
   return (
-    <div className="access-panel">
-      <p className="kicker">Administration</p>
+    <div className="access-card">
       <h2 className="panel-title">Sign in</h2>
       <p className="lede">
         Administrator accounts use a password rather than a one-time code.

@@ -25,10 +25,14 @@ export type BindMemberResult =
   | { ok: false; error: string };
 
 export type RequestOtpResult =
-  | { ok: true; name: string; maskedEmail: string }
+  | { ok: true; name: string; maskedEmail: string; expiresAt: string }
   | { ok: false; error: string };
 
-export type VerifyOtpResult = { ok: false; error: string };
+export type VerifyOtpResult = {
+  ok: false;
+  error: string;
+  attemptCount?: number;
+};
 
 async function memberFromAccessIntent() {
   const intent = await getAccessIntent();
@@ -120,6 +124,7 @@ export async function requestOtp(): Promise<RequestOtpResult> {
     ok: true,
     name: member.name,
     maskedEmail: maskEmail(email),
+    expiresAt: challenge.expiresAt.toISOString(),
   };
 }
 
@@ -187,7 +192,11 @@ export async function verifyOtp(code: string): Promise<VerifyOtpResult> {
       });
     }
 
-    return { ok: false, error: "That code is incorrect. Try again." };
+    return {
+      ok: false,
+      error: "That code is incorrect. Try again.",
+      attemptCount: updated.attemptCount,
+    };
   }
 
   await prisma.otpChallenge.update({

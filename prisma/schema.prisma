@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -22,6 +23,9 @@ model AdvisoryBoardMember {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   otpChallenges OtpChallenge[]
+  reviewAnswers ReviewAnswer[]
+  pulseAnswers      PulseAnswer[]
+  pulseSubmission   PulseSubmission?
 
   @@unique([name, title])
   @@map("advisory_board_members")
@@ -40,4 +44,94 @@ model OtpChallenge {
 
   @@index([memberId, createdAt])
   @@map("otp_challenges")
+}
+
+enum ReviewVote {
+  YES
+  NO
+}
+
+model ReviewQuestion {
+  id           Int            @id
+  section      String
+  sectionTitle String
+  polarity     String
+  isGate       Boolean        @default(false)
+  isRevised    Boolean        @default(false)
+  prompt       String
+  basis        String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  answers      ReviewAnswer[]
+
+  @@map("review_questions")
+}
+
+model ReviewAnswer {
+  id         Int                    @id @default(autoincrement())
+  memberId   Int
+  member     AdvisoryBoardMember    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  questionId Int
+  question   ReviewQuestion         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  vote       ReviewVote
+  comments   String?
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  @@unique([memberId, questionId])
+  @@index([memberId])
+  @@map("review_answers")
+}
+
+enum PulseQuestionType {
+  LIKERT
+  YESNO
+  PMF
+  MULTI
+  TEXT
+  DUAL_TEXT
+}
+
+model PulseQuestion {
+  id        String            @id
+  section   Int
+  code      String
+  sortOrder Int
+  type      PulseQuestionType
+  prompt    String
+  required  Boolean           @default(true)
+  maxSelect Int?
+  options   Json?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  answers   PulseAnswer[]
+
+  @@index([section, sortOrder])
+  @@map("pulse_questions")
+}
+
+model PulseAnswer {
+  id          String               @id @default(cuid())
+  memberId    Int
+  member      AdvisoryBoardMember  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    PulseQuestion        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  valueJson   Json
+  commentText String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([memberId, questionId])
+  @@index([memberId])
+  @@map("pulse_answers")
+}
+
+model PulseSubmission {
+  id          String              @id @default(cuid())
+  memberId    Int                 @unique
+  member      AdvisoryBoardMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  submittedAt DateTime            @default(now())
+
+  @@index([submittedAt])
+  @@map("pulse_submissions")
 }
