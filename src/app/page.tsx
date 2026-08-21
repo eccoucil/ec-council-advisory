@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { AccessGate } from "@/components/access-gate";
 import { MemberAccess } from "@/components/member-access";
 
 export default async function Home() {
@@ -8,33 +9,20 @@ export default async function Home() {
   });
 
   return (
-    <main className="gate">
-      <section className="gate-brief">
-        <p className="eyebrow">EC-Council · Restricted</p>
-        <h1>
+    <AccessGate
+      figure="Fig. 01"
+      section="Member access"
+      kicker="Member roster"
+      step="01 / 02"
+      title={
+        <>
           Artificial Intelligence
           <span>Advisory Board</span>
-        </h1>
-        <p>
-          Voices from global leaders who guide EC-Council initiatives in AI
-          security. Access is issued only to seated members, and only after a
-          one-time code reaches the email on file.
-        </p>
-        <dl>
-          <div>
-            <dt>Seated</dt>
-            <dd>{members.length}</dd>
-          </div>
-          <div>
-            <dt>Clearance</dt>
-            <dd>OTP</dd>
-          </div>
-        </dl>
-      </section>
-
-      <section className="gate-access">
-        <MemberAccess members={members} />
-      </section>
-    </main>
+        </>
+      }
+      lede={`${members.length} global leaders who guide EC-Council's work in AI security. Access is issued only to seated members, and only after a one-time code reaches the email on file.`}
+    >
+      <MemberAccess members={members} />
+    </AccessGate>
   );
 }

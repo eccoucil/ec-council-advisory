@@ -12,6 +12,8 @@ export type BoardMemberOption = {
 
 export function MemberAccess({ members }: { members: BoardMemberOption[] }) {
   const router = useRouter();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -19,7 +21,6 @@ export function MemberAccess({ members }: { members: BoardMemberOption[] }) {
   const [error, setError] = useState<string | null>(null);
   const [isBinding, startBinding] = useTransition();
   const [isSending, startSending] = useTransition();
-  const searchRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -44,6 +45,17 @@ export function MemberAccess({ members }: { members: BoardMemberOption[] }) {
       searchRef.current?.focus();
     }
   }, [open]);
+
+  useEffect(() => {
+    function onPointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
 
   function selectMember(member: BoardMemberOption) {
     setError(null);
@@ -79,16 +91,19 @@ export function MemberAccess({ members }: { members: BoardMemberOption[] }) {
   }
 
   return (
-    <div className="access-panel">
-      <p className="kicker">Member roster</p>
+    <div className="access-card">
       <h2 className="panel-title">Find your name</h2>
       <p className="lede">
-        Choose your listing, then send a one-time access code to the email on
-        file.
+        Choose your listing from the seated roster. We will send a six-digit
+        code to the email we hold for you.
       </p>
 
-      <div className="roster">
+      <div className="roster" ref={rootRef}>
+        <label className="field-label" htmlFor="member-trigger">
+          Board member
+        </label>
         <button
+          id="member-trigger"
           className="roster-trigger"
           type="button"
           aria-expanded={open}
@@ -97,15 +112,29 @@ export function MemberAccess({ members }: { members: BoardMemberOption[] }) {
           disabled={isBinding || isSending}
         >
           <span className="roster-trigger-copy">
-            <span className="roster-trigger-name">
+            <span className={selected ? "roster-trigger-name" : "roster-placeholder"}>
               {selected ? selected.name : "Select your name"}
             </span>
             {selected ? (
               <span className="roster-title">{selected.title}</span>
             ) : null}
           </span>
-          <span className="roster-count">
-            {selected ? "Change" : `${members.length} seated`}
+          <span className="roster-trigger-meta">
+            <span className="roster-count">{members.length} seated</span>
+            <svg
+              className="roster-chevron"
+              viewBox="0 0 18 18"
+              aria-hidden
+            >
+              <path
+                d="M4.2 6.4 9 11.2l4.8-4.8"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </span>
         </button>
 
@@ -175,14 +204,35 @@ export function MemberAccess({ members }: { members: BoardMemberOption[] }) {
         onClick={sendOtp}
         disabled={!selected || isBinding || isSending}
       >
-        {isSending ? "Sending code…" : "Send OTP now"}
+        {isSending ? "Sending code…" : "Send access code"}
       </button>
 
       {error ? (
         <p className="form-error" role="alert">
           {error}
         </p>
-      ) : null}
+      ) : (
+        <p className="access-hint">
+          <svg viewBox="0 0 14 14" aria-hidden>
+            <path
+              d="M7 1.2 2.4 3.1v3.6c0 2.8 1.9 4.8 4.6 5.7 2.7-.9 4.6-2.9 4.6-5.7V3.1L7 1.2Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.1"
+            />
+            <path
+              d="M4.8 7.1 6.3 8.6 9.3 5.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.1"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Select a member to enable delivery. Codes expire ten minutes after
+          issue.
+        </p>
+      )}
     </div>
   );
 }
