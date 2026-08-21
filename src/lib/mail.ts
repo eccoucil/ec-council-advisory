@@ -6,6 +6,22 @@ type AccessCodeEmail = {
   code: string;
 };
 
+/**
+ * Without a Resend key there is no way to deliver. In production that is a
+ * misconfiguration and must fail loudly; in development it would block the
+ * whole sign-in flow, so the message is written to the server log instead.
+ */
+function deliveryUnavailable(summary: string) {
+  if (process.env.NODE_ENV === "production") {
+    return new Error("RESEND_API_KEY is not set");
+  }
+
+  console.warn(
+    `[mail] RESEND_API_KEY is not set — nothing was sent.\n[mail] ${summary}`,
+  );
+  return null;
+}
+
 function fromAddress() {
   return (
     process.env.RESEND_FROM_EMAIL?.replace(/^["']|["']$/g, "") ||
@@ -16,7 +32,11 @@ function fromAddress() {
 export async function sendAccessCodeEmail({ to, name, code }: AccessCodeEmail) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not set");
+    const failure = deliveryUnavailable(`access code for ${to}: ${code}`);
+    if (failure) {
+      throw failure;
+    }
+    return;
   }
 
   const resend = new Resend(apiKey);
@@ -48,7 +68,11 @@ export async function sendPulseReminderEmail({
 }: ReminderEmail) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not set");
+    const failure = deliveryUnavailable(`reminder for ${to} (${name})`);
+    if (failure) {
+      throw failure;
+    }
+    return;
   }
 
   const resend = new Resend(apiKey);
