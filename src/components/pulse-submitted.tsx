@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PulseFollowUp } from "@/components/pulse-follow-up";
 import { memberInitials, memberShortName } from "@/lib/member-display";
 
 export type GlanceRow = {
@@ -18,11 +17,7 @@ export function PulseSubmitted({
   scoredTotal,
   rosterSize,
   glance,
-  followUp,
-  followUpCount,
-  submitterCount,
   windowOpen,
-  gapNote,
 }: {
   name: string;
   submittedLabel: string;
@@ -31,11 +26,7 @@ export function PulseSubmitted({
   scoredTotal: number;
   rosterSize: number;
   glance: GlanceRow[];
-  followUp: boolean;
-  followUpCount: number;
-  submitterCount: number;
   windowOpen: boolean;
-  gapNote: string | null;
 }) {
   return (
     <div className="pulse-page">
@@ -122,14 +113,6 @@ export function PulseSubmitted({
                 ) : null}
               </div>
             </article>
-
-            <PulseFollowUp
-              optedIn={followUp}
-              optedInCount={followUpCount}
-              submitterCount={submitterCount}
-              windowOpen={windowOpen}
-              gapNote={gapNote}
-            />
           </div>
 
           <footer className="pulse-done-footer">

@@ -153,7 +153,7 @@ export const pulseSections: PulseSectionMeta[] = [
     eyebrow: "Section 6 · required sign-off",
     description:
       "Taken together: the Protocol plus the four products. This section is required to count as a complete submission.",
-    questionLabel: "5 questions · required",
+    questionLabel: "4 questions · required",
     requiredSection: true,
     tone: "ink",
   },
@@ -339,15 +339,6 @@ export const pulseQuestions: PulseQuestionSeed[] = [
       "Pain points you face or observe that none of today's solutions address.",
     required: false,
   },
-  {
-    id: "s6-5",
-    section: 6,
-    code: "6.5",
-    sortOrder: 5,
-    type: "YESNO",
-    prompt: "Open to a 30-minute follow-up conversation?",
-    required: false,
-  },
 ];
 
 export function questionsForSection(sectionId: number) {
@@ -358,8 +349,7 @@ export function isScoredQuestion(question: PulseQuestionSeed) {
   return (
     question.section >= 1 &&
     question.id !== "s1-5" &&
-    question.id !== "s6-4" &&
-    question.id !== "s6-5"
+    question.id !== "s6-4"
   );
 }
 

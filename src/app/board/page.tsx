@@ -58,7 +58,7 @@ export default async function BoardLandingPage() {
     redirect("/");
   }
 
-  const [submission, answerRows, submitterCount, windowOpen] = await Promise.all([
+  const [submission, answerRows, windowOpen] = await Promise.all([
     prisma.pulseSubmission.findUnique({
       where: { memberId: session.memberId },
     }),
@@ -66,7 +66,6 @@ export default async function BoardLandingPage() {
       where: { memberId: session.memberId },
       select: { questionId: true, valueJson: true, commentText: true },
     }),
-    prisma.pulseSubmission.count(),
     isPulseWindowOpen(),
   ]);
 
@@ -82,23 +81,6 @@ export default async function BoardLandingPage() {
     const earlier = await prisma.pulseSubmission.count({
       where: { submittedAt: { lte: submission.submittedAt } },
     });
-
-    const followUpRows = await prisma.pulseAnswer.findMany({
-      where: { questionId: "s6-5" },
-      select: {
-        valueJson: true,
-        member: { select: { pulseSubmission: { select: { id: true } } } },
-      },
-    });
-    const followUpCount = followUpRows.filter(
-      (row) => row.valueJson === "YES" && row.member.pulseSubmission,
-    ).length;
-
-    const gap = answers["s6-4"]?.value;
-    const gapNote =
-      typeof gap === "string" && gap.trim()
-        ? gap.trim().replace(/\.$/, "").slice(0, 90)
-        : null;
 
     const scoredAnswered = scoredQuestions.filter((question) =>
       hasValue(answers[question.id]),
@@ -154,11 +136,7 @@ export default async function BoardLandingPage() {
             signal: pmfLabel(answers["s5-3"]?.value),
           },
         ]}
-        followUp={answers["s6-5"]?.value === "YES"}
-        followUpCount={followUpCount}
-        submitterCount={submitterCount}
         windowOpen={windowOpen}
-        gapNote={gapNote}
       />
     );
   }

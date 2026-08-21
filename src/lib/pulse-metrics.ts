@@ -81,7 +81,6 @@ export type PulseDashboard = {
   consensusResponses: number;
   meanAlignmentIndex: number | null;
   alignmentItems: AgendaMetric[];
-  followUps: number;
   pmf: PmfMetric[];
   funnel: FunnelStep[];
   painPoints: PainPoint[];
@@ -270,10 +269,6 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
   );
 
   const consensus = yesPct(rows, "6.2");
-  const followUps = answersFor(rows, "6.5").filter(
-    (row) => row.valueJson === "YES",
-  ).length;
-
   const alignmentItems: AgendaMetric[] = AGENDA_SECTIONS.map(
     (section, position) => {
       const likert = likertMetrics(rows, `${section}.1`);
@@ -363,7 +358,6 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
     consensusResponses: consensus.responses,
     meanAlignmentIndex,
     alignmentItems,
-    followUps,
     pmf,
     funnel: [
       { label: "On the roster", value: members.length },

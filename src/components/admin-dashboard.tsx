@@ -202,7 +202,6 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
     alignmentItems,
     consensusYesPct,
     consensusResponses,
-    followUps,
     funnel,
     generatedAt,
     lastResponseAt,
@@ -275,12 +274,6 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
             label="MEAN ALIGNMENT INDEX"
             value={meanAlignmentIndex === null ? "—" : String(meanAlignmentIndex)}
             sub={`across ${scoredItems} agenda item${scoredItems === 1 ? "" : "s"} (0–100)`}
-          />
-          <Kpi
-            accent="#4A83C7"
-            label="FOLLOW-UP PIPELINE"
-            value={String(followUps)}
-            sub="opted in to a 30-min call"
           />
         </div>
 

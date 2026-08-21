@@ -175,10 +175,6 @@ export async function savePulseAnswer(
     },
   });
 
-  if (questionId === "s6-5") {
-    revalidatePath("/board");
-  }
-
   return { ok: true };
 }
 
