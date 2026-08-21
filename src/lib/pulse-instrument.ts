@@ -82,8 +82,8 @@ export const pulseSections: PulseSectionMeta[] = [
     railTitle: "Pre-read pulse",
     eyebrow: "Optional · before the session",
     description:
-      "Three questions to capture what is already acute in the market. Skip if you are starting after the demos.",
-    questionLabel: "3 questions · optional",
+      "Two questions to capture what is already acute in the market. Skip if you are starting after the demos.",
+    questionLabel: "2 questions · optional",
     optional: true,
     tone: "teal",
   },
@@ -246,15 +246,6 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     type: "YESNO",
     prompt:
       'Is "unknown/unowned AI in production" a top-3 risk in organisations you observe?',
-    required: false,
-  },
-  {
-    id: "s0-3",
-    section: 0,
-    code: "0.3",
-    sortOrder: 3,
-    type: "TEXT",
-    prompt: "One question you want answered on the 27th.",
     required: false,
   },
   {

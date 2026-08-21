@@ -111,6 +111,10 @@ export async function savePulseAnswer(
     return { ok: false, error: "You must be signed in." };
   }
 
+  if (session.role !== "MEMBER") {
+    return { ok: false, error: "The pulse is answered by seated members only." };
+  }
+
   if (!(await isPulseWindowOpen())) {
     return { ok: false, error: "The window has closed. Your responses are locked." };
   }
@@ -185,6 +189,10 @@ export async function submitPulse(): Promise<
   const session = await getSession();
   if (!session) {
     return { ok: false, error: "You must be signed in." };
+  }
+
+  if (session.role !== "MEMBER") {
+    return { ok: false, error: "The pulse is answered by seated members only." };
   }
 
   if (!(await isPulseWindowOpen())) {

@@ -32,6 +32,9 @@ export default async function BoardSurveyPage({
   if (!session) {
     redirect("/");
   }
+  if (session.role !== "MEMBER") {
+    redirect("/admin");
+  }
 
   if (!(await isPulseWindowOpen())) {
     redirect("/board");

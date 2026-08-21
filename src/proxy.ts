@@ -32,6 +32,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/board", request.url));
   }
 
+  // Administrators must not answer the pulse they are reading.
+  if (!isAdminArea && session.role === "ADMIN") {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
   return NextResponse.next();
 }
 

@@ -104,6 +104,9 @@ const questionByCode = new Map<string, PulseQuestionSeed>(
   pulseQuestions.map((question) => [question.code, question]),
 );
 
+/** Answers to retired questions stay in the table but never feed a figure. */
+const liveQuestionIds = pulseQuestions.map((question) => question.id);
+
 function pct(part: number, whole: number) {
   return whole === 0 ? null : Math.round((part / whole) * 100);
 }
@@ -228,6 +231,7 @@ function isDualText(value: unknown): value is { liked: string; disliked: string 
 export async function loadPulseDashboard(): Promise<PulseDashboard> {
   const [rawAnswers, submissions, members, requestedAccess] = await Promise.all([
     prisma.pulseAnswer.findMany({
+      where: { member: { role: "MEMBER" }, questionId: { in: liveQuestionIds } },
       select: {
         memberId: true,
         questionId: true,
@@ -236,13 +240,17 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
         updatedAt: true,
       },
     }),
-    prisma.pulseSubmission.findMany({ select: { submittedAt: true } }),
+    prisma.pulseSubmission.findMany({
+      where: { member: { role: "MEMBER" } },
+      select: { submittedAt: true },
+    }),
     prisma.advisoryBoardMember.findMany({
       where: { role: "MEMBER" },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
     prisma.otpChallenge.findMany({
+      where: { member: { role: "MEMBER" } },
       select: { memberId: true },
       distinct: ["memberId"],
     }),
@@ -674,7 +682,10 @@ export async function loadAgendaSection(
 
   const [rawAnswers, members, submissions] = await Promise.all([
     prisma.pulseAnswer.findMany({
-      where: { questionId: { in: [...questionIds] } },
+      where: {
+        member: { role: "MEMBER" },
+        questionId: { in: [...questionIds] },
+      },
       select: {
         memberId: true,
         questionId: true,
@@ -688,7 +699,10 @@ export async function loadAgendaSection(
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
-    prisma.pulseSubmission.findMany({ select: { memberId: true } }),
+    prisma.pulseSubmission.findMany({
+      where: { member: { role: "MEMBER" } },
+      select: { memberId: true },
+    }),
   ]);
 
   const rows = rawAnswers as AnswerRow[];
@@ -720,6 +734,7 @@ export async function loadAgendaSection(
           ? rows
           : ((await prisma.pulseAnswer.findMany({
               where: {
+                member: { role: "MEMBER" },
                 questionId: questionByCode.get(`${id}.1`)?.id ?? "__none__",
               },
               select: {
@@ -1067,6 +1082,7 @@ export async function loadRoster(): Promise<RosterView> {
     }),
     prisma.pulseAnswer.groupBy({
       by: ["memberId"],
+      where: { questionId: { in: liveQuestionIds } },
       _count: { _all: true },
       _max: { updatedAt: true },
     }),
