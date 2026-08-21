@@ -22,8 +22,8 @@ import { redirect } from "next/navigation";
 const agenda = [
   {
     num: "01",
-    title: "ADG V1 → V2 scale-up",
-    desc: "12 MCs + 12 control families",
+    title: "ADG V1 → ADG V2 Scale Up",
+    desc: "12 minimum controls → 12 control families",
     tone: "crimson",
   },
   {
@@ -115,7 +115,7 @@ export default async function BoardLandingPage() {
         glance={[
           {
             num: "01",
-            title: "ADG V1 → V2 scale-up",
+            title: "ADG V1 → ADG V2 Scale Up",
             tone: "crimson",
             likert: likertLabel(answers["s1-1"]?.value),
             signal:

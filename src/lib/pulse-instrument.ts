@@ -89,11 +89,11 @@ export const pulseSections: PulseSectionMeta[] = [
   },
   {
     id: 1,
-    title: "V1 → V2 scale-up",
-    railTitle: "V1 → V2 scale-up",
+    title: "ADG V1 → ADG V2 Scale Up",
+    railTitle: "ADG V1 → ADG V2 Scale Up",
     eyebrow: "Agenda item ① · Framework",
     description:
-      "From 12 minimum controls to 12 minimum controls plus 12 control families. Score the direction, not a product.",
+      "From 12 minimum controls to 12 control families, with the obligation and clauses highlighted per AI use case. Score the direction, not a product.",
     questionLabel: "5 questions",
     tone: "crimson",
   },
@@ -255,7 +255,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     sortOrder: 1,
     type: "LIKERT",
     prompt:
-      "The evolution from 12 minimum controls to 12 minimum controls plus 12 control families is the right direction for ADG.",
+      "The evolution from 12 minimum controls to 12 control families, highlighting the obligation and clauses per AI use case, is the right direction for ADG.",
     required: true,
   },
   {
@@ -265,7 +265,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     sortOrder: 2,
     type: "YESNO",
     prompt:
-      "Does extending crosswalk reach toward 50+ standards (7 mapped in depth today) materially reduce compliance burden for adopters?",
+      "Does extending crosswalk reach towards 50+ standards, highlighting the obligation and clauses, materially reduce compliance burden for adopters?",
     required: true,
   },
   {
@@ -275,7 +275,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     sortOrder: 3,
     type: "YESNO",
     prompt:
-      "Does V2's agentic coverage (MCP / ACP / A2A, runtime loop, autonomy tiers) address where AI risk is actually heading in your view?",
+      "Does ADG V2's agentic coverage (MCP / ACP / A2A, Intent Classification, runtime loop, autonomy tiers) address where AI risk is actually heading in your view?",
     required: true,
   },
   {
@@ -285,7 +285,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     sortOrder: 4,
     type: "YESNO",
     prompt:
-      "Is the depth of V2 achievable for small and mid-market organisations, not only enterprises?",
+      "Is the depth of ADG V2 achievable for small and mid-market organisations, not only enterprises?",
     required: true,
   },
   {
@@ -294,7 +294,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     code: "1.5",
     sortOrder: 5,
     type: "TEXT",
-    prompt: "Biggest gap or concern in the V1→V2 direction.",
+    prompt: "Biggest gap or concern in the ADG V1 → ADG V2 direction.",
     required: false,
   },
   ...productBlock(2, "s2"),
@@ -308,7 +308,7 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     sortOrder: 1,
     type: "YESNO",
     prompt:
-      "Taken together, do the framework (V2) + four products form a coherent approach to making AI governable for a typical organisation?",
+      "Taken together, do the framework (ADG V2) + four products form a coherent approach to making AI governable for a typical organisation?",
     required: true,
   },
   {
