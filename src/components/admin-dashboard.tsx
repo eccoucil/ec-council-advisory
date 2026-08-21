@@ -205,15 +205,16 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
     followUps,
     funnel,
     generatedAt,
-    invited,
     lastResponseAt,
     meanAlignmentIndex,
     painPoints,
     painPointResponses,
     pmf,
     responseRatePct,
+    seated,
     sessionLabel,
     submitted,
+    target,
     verbatims,
     windowClosesAt,
   } = data;
@@ -232,8 +233,9 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
           </h1>
           <p className="m-0 text-[13px] text-[#5A6069]">
             {windowOpen ? "Live" : "Window closed"} ·{" "}
-            {formatRelative(lastResponseAt, generatedAt)} · {invited} members
-            invited
+            {formatRelative(lastResponseAt, generatedAt)} · {seated} members on
+            the roster
+            {seated === target ? null : ` of ${target} planned`}
           </p>
         </div>
         <span
@@ -255,7 +257,7 @@ export function PulseDashboardView({ data }: { data: PulseDashboard }) {
           <Kpi
             accent={responseRatePct >= RESPONSE_RATE_TARGET ? GREEN : AMBER}
             label="RESPONSE RATE"
-            value={`${submitted} / ${invited}`}
+            value={`${submitted} / ${seated}`}
             sub={`${responseRatePct}% complete · target ≥${RESPONSE_RATE_TARGET}%`}
           />
           <Kpi

@@ -1,4 +1,5 @@
 import { DatabaseIcon, LockIcon, ShieldCheckIcon } from "@/components/admin-icons";
+import { RosterActions } from "@/components/roster-actions";
 import {
   formatMytShort,
   ROSTER_STATUS_ORDER,
@@ -49,8 +50,10 @@ const POLICIES = [
     title: "Closing the window",
     accent: CRIMSON,
     Icon: LockIcon,
-    body: (closesAt: string) =>
-      `Closing locks every response and turns each access code into a thank-you page. Scheduled for ${closesAt}. The close control specified in FR-D6 is not wired into this console yet.`,
+    body: (closesAt: string, closedAt: string | null) =>
+      closedAt
+        ? `The window was closed early on ${closedAt}. Responses are locked and the survey redirects members to the board page. Reopening is a database change, not a console action.`
+        : `Closing locks every response and turns each access code into a thank-you page. It is scheduled for ${closesAt}, and closing early cannot be undone from the console.`,
   },
   {
     title: "Retention & erasure",
@@ -58,6 +61,7 @@ const POLICIES = [
     Icon: DatabaseIcon,
     body: () =>
       "Raw responses are retained 12 months (D6), then aggregate-only. Right-to-erasure is honoured on request; deleting a member cascades their answers and rescales every aggregate.",
+
   },
   {
     title: "Attribution in force",
@@ -103,8 +107,8 @@ export function RosterTable({ data }: { data: RosterView }) {
 
   return (
     <div className="flex flex-1 flex-col bg-[#F4F3F0]">
-      <header className="flex w-full items-center justify-between gap-6 border-b border-[#E4E3DE] bg-white px-8 py-6">
-        <div className="flex flex-1 flex-col gap-[5px]">
+      <header className="flex w-full flex-wrap items-start justify-between gap-6 border-b border-[#E4E3DE] bg-white px-8 py-6">
+        <div className="flex min-w-[280px] flex-1 flex-col gap-[5px]">
           <h1 className="m-0 font-[family-name:var(--font-pulse-display)] text-[24px] font-semibold text-[#14161A]">
             Roster &amp; invites
           </h1>
@@ -112,21 +116,29 @@ export function RosterTable({ data }: { data: RosterView }) {
             {data.seated} of {data.target} seats filled · one-time-code access,
             no self-registration
           </p>
-        </div>
-        {data.withoutEmail > 0 ? (
-          <span
-            className="flex shrink-0 items-center gap-2 rounded-[6px] px-[13px] py-2"
-            style={{ backgroundColor: "#FAEDEF" }}
-          >
+          {data.withoutEmail > 0 ? (
             <span
-              className="h-[6px] w-[6px] rounded-full"
-              style={{ backgroundColor: CRIMSON }}
-            />
-            <span className="text-[12.5px] font-medium" style={{ color: CRIMSON }}>
-              {data.withoutEmail} without an email on file
+              className="mt-1 flex w-fit items-center gap-2 rounded-[6px] px-[10px] py-[5px]"
+              style={{ backgroundColor: "#FAEDEF" }}
+            >
+              <span
+                className="h-[6px] w-[6px] rounded-full"
+                style={{ backgroundColor: CRIMSON }}
+              />
+              <span
+                className="text-[12px] font-medium"
+                style={{ color: CRIMSON }}
+              >
+                {data.withoutEmail} cannot be reached — no email on file
+              </span>
             </span>
-          </span>
-        ) : null}
+          ) : null}
+        </div>
+        <RosterActions
+          closed={data.windowClosedAt !== null}
+          closesAt={formatMytStamp(data.windowClosesAt)}
+          pending={data.pending}
+        />
       </header>
 
       <div className="flex w-full flex-col gap-5 px-8 pb-9 pt-6">
@@ -242,7 +254,7 @@ export function RosterTable({ data }: { data: RosterView }) {
               Showing all {data.members.length} members
             </span>
             <span className="font-[family-name:var(--font-pulse-mono)] text-[11px] text-[#8E949C]">
-              CSV upload, invite resend and window close (FR-D6) are not built yet
+              CSV columns: name, title, email
             </span>
           </div>
         </section>
@@ -262,7 +274,12 @@ export function RosterTable({ data }: { data: RosterView }) {
                   </h2>
                 </header>
                 <p className="m-0 text-[13px]/[21px] text-[#5A6069]">
-                  {body(formatMytStamp(data.windowClosesAt))}
+                  {body(
+                    formatMytStamp(data.windowClosesAt),
+                    data.windowClosedAt
+                      ? formatMytStamp(data.windowClosedAt)
+                      : null,
+                  )}
                 </p>
               </div>
             </section>

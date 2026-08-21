@@ -4,7 +4,12 @@ import {
   type PulseQuestionSeed,
   pulseQuestions,
 } from "@/lib/pulse-instrument";
-import { PULSE_ROSTER_SIZE, PULSE_WINDOW_CLOSES } from "@/lib/pulse-window";
+import {
+  PULSE_ROSTER_SIZE,
+  PULSE_SESSION_DATE,
+  PULSE_WINDOW_CLOSES,
+  pulseWindowClosedAt,
+} from "@/lib/pulse-window";
 import { prisma } from "@/lib/prisma";
 
 /** Sections that carry a product or framework verdict, in agenda order. */
@@ -62,7 +67,10 @@ export type Verbatim = {
 
 export type PulseDashboard = {
   sessionLabel: string;
-  invited: number;
+  /** Members on the roster right now. Every rate is computed against this. */
+  seated: number;
+  /** Planned roster size, shown only as the target to fill against. */
+  target: number;
   submitted: number;
   responseRatePct: number;
   lastResponseAt: Date | null;
@@ -328,10 +336,16 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
   }, null);
 
   return {
-    sessionLabel: "Board Pulse — 27 August 2026",
-    invited: PULSE_ROSTER_SIZE,
+    sessionLabel: `Board Pulse — ${new Intl.DateTimeFormat("en-GB", {
+      timeZone: "UTC",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(PULSE_SESSION_DATE)}`,
+    seated: members.length,
+    target: PULSE_ROSTER_SIZE,
     submitted: submissions.length,
-    responseRatePct: pct(submissions.length, PULSE_ROSTER_SIZE) ?? 0,
+    responseRatePct: pct(submissions.length, members.length) ?? 0,
     lastResponseAt,
     consensusYesPct: consensus.pct,
     consensusResponses: consensus.responses,
@@ -340,7 +354,7 @@ export async function loadPulseDashboard(): Promise<PulseDashboard> {
     followUps,
     pmf,
     funnel: [
-      { label: "Invited", value: PULSE_ROSTER_SIZE },
+      { label: "On the roster", value: members.length },
       { label: "Requested access", value: requestedAccess.length },
       { label: "Started", value: started },
       { label: "Submitted", value: submissions.length, emphasis: true },
@@ -891,8 +905,11 @@ export type RosterView = {
   totalQuestions: number;
   counts: Record<RosterStatus, number>;
   withoutEmail: number;
+  /** Reachable by email and yet to submit — the reminder audience. */
+  pending: number;
   members: RosterMember[];
   windowClosesAt: Date;
+  windowClosedAt: Date | null;
   generatedAt: Date;
 };
 
@@ -930,7 +947,8 @@ export function formatMytShort(date: Date) {
 }
 
 export async function loadRoster(): Promise<RosterView> {
-  const [members, answerStats, submissions, challenges] = await Promise.all([
+  const [members, answerStats, submissions, challenges, windowClosedAt] =
+    await Promise.all([
     prisma.advisoryBoardMember.findMany({
       where: { role: "MEMBER" },
       select: { id: true, name: true, title: true, email: true },
@@ -944,11 +962,12 @@ export async function loadRoster(): Promise<RosterView> {
     prisma.pulseSubmission.findMany({
       select: { memberId: true, submittedAt: true },
     }),
-    prisma.otpChallenge.groupBy({
-      by: ["memberId"],
-      _max: { createdAt: true },
-    }),
-  ]);
+      prisma.otpChallenge.groupBy({
+        by: ["memberId"],
+        _max: { createdAt: true },
+      }),
+      pulseWindowClosedAt(),
+    ]);
 
   const answersBy = new Map(
     answerStats.map((row) => [
@@ -1016,8 +1035,12 @@ export async function loadRoster(): Promise<RosterView> {
     totalQuestions: pulseQuestions.length,
     counts,
     withoutEmail: members.filter((member) => !member.email).length,
+    pending: rows.filter(
+      (row) => row.email !== null && row.status !== "submitted",
+    ).length,
     members: rows,
     windowClosesAt: PULSE_WINDOW_CLOSES,
+    windowClosedAt,
     generatedAt: new Date(),
   };
 }

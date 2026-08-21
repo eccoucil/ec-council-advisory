@@ -31,6 +31,16 @@ model AdvisoryBoardMember {
   @@map("advisory_board_members")
 }
 
+/// Singleton row holding the manual close of the pulse window.
+model PulseWindow {
+  id        Int       @id @default(1)
+  closedAt  DateTime?
+  closedBy  Int?
+  updatedAt DateTime  @updatedAt
+
+  @@map("pulse_window")
+}
+
 model OtpChallenge {
   id           String               @id @default(cuid())
   memberId     Int

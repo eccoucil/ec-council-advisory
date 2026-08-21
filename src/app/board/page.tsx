@@ -13,7 +13,7 @@ import {
   formatMytStamp,
   ordinal,
   PULSE_ROSTER_SIZE,
-  pulseWindowOpen,
+  isPulseWindowOpen,
 } from "@/lib/pulse-window";
 import { getSession } from "@/lib/session";
 import Link from "next/link";
@@ -58,7 +58,7 @@ export default async function BoardLandingPage() {
     redirect("/");
   }
 
-  const [submission, answerRows, submitterCount] = await Promise.all([
+  const [submission, answerRows, submitterCount, windowOpen] = await Promise.all([
     prisma.pulseSubmission.findUnique({
       where: { memberId: session.memberId },
     }),
@@ -67,6 +67,7 @@ export default async function BoardLandingPage() {
       select: { questionId: true, valueJson: true, commentText: true },
     }),
     prisma.pulseSubmission.count(),
+    isPulseWindowOpen(),
   ]);
 
   if (submission) {
@@ -156,7 +157,7 @@ export default async function BoardLandingPage() {
         followUp={answers["s6-5"]?.value === "YES"}
         followUpCount={followUpCount}
         submitterCount={submitterCount}
-        windowOpen={pulseWindowOpen()}
+        windowOpen={windowOpen}
         gapNote={gapNote}
       />
     );

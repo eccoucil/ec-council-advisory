@@ -6,19 +6,22 @@ type AccessCodeEmail = {
   code: string;
 };
 
+function fromAddress() {
+  return (
+    process.env.RESEND_FROM_EMAIL?.replace(/^["']|["']$/g, "") ||
+    "EC-Council Advisory Board <noreply@ecc0uncil.org>"
+  );
+}
+
 export async function sendAccessCodeEmail({ to, name, code }: AccessCodeEmail) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     throw new Error("RESEND_API_KEY is not set");
   }
 
-  const from =
-    process.env.RESEND_FROM_EMAIL?.replace(/^["']|["']$/g, "") ||
-    "EC-Council Advisory Board <noreply@ecc0uncil.org>";
-
   const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
-    from,
+    from: fromAddress(),
     to,
     subject: "Your EC-Council AI Advisory Board access code",
     html: renderAccessCodeEmail(name, code),
@@ -28,6 +31,113 @@ export async function sendAccessCodeEmail({ to, name, code }: AccessCodeEmail) {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+type ReminderEmail = {
+  to: string;
+  name: string;
+  closesAt: string;
+  url: string;
+};
+
+export async function sendPulseReminderEmail({
+  to,
+  name,
+  closesAt,
+  url,
+}: ReminderEmail) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not set");
+  }
+
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from: fromAddress(),
+    to,
+    subject: "Reminder: your EC-Council AI Advisory Board pulse",
+    html: renderReminderEmail(name, closesAt, url),
+    text: renderReminderText(name, closesAt, url),
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+function renderReminderEmail(name: string, closesAt: string, url: string) {
+  const safeName = escapeHtml(name);
+  const safeUrl = escapeHtml(url);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Board Pulse reminder</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F3F0EA;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F3F0EA;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:1px solid #E4DFD4;">
+            <tr>
+              <td style="height:4px;background:#9F1D1D;font-size:0;line-height:0;">&nbsp;</td>
+            </tr>
+            <tr>
+              <td style="padding:32px 40px 12px;font-family:Georgia,'Times New Roman',serif;">
+                <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#9F1D1D;">
+                  EC-Council
+                </p>
+                <p style="margin:0;font-size:22px;line-height:1.3;color:#1A1916;">
+                  Artificial Intelligence Advisory Board
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 40px 8px;font-family:Georgia,'Times New Roman',serif;color:#1A1916;">
+                <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Dear ${safeName},</p>
+                <p style="margin:0 0 16px;font-size:16px;line-height:1.7;color:#4A463C;">
+                  Your response to the Board Pulse has not been submitted yet. It takes about twelve minutes, and the window closes on <strong style="color:#1A1916;">${escapeHtml(closesAt)}</strong>.
+                </p>
+                <p style="margin:0;font-size:16px;line-height:1.7;color:#4A463C;">
+                  Select your name on the board page and we will send a one-time access code to this address.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding:24px 40px 32px;">
+                <a href="${safeUrl}" style="display:inline-block;padding:14px 28px;background:#9F1D1D;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;text-decoration:none;border-radius:4px;">
+                  Open the board page
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 40px 24px;border-top:1px solid #E4DFD4;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#8A8478;">
+                EC-Council Artificial Intelligence Advisory Board<br />
+                This is an automated message. Please do not reply.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
+function renderReminderText(name: string, closesAt: string, url: string) {
+  return [
+    `Dear ${name},`,
+    "",
+    "Your response to the EC-Council AI Advisory Board pulse has not been submitted yet.",
+    `The window closes on ${closesAt}.`,
+    "",
+    `Open the board page and select your name to receive a one-time access code: ${url}`,
+    "",
+    "EC-Council Artificial Intelligence Advisory Board",
+  ].join("\n");
 }
 
 function renderAccessCodeEmail(name: string, code: string) {

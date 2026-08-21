@@ -8,7 +8,7 @@ import {
   type PulseAnswerValue,
 } from "@/lib/pulse-answers";
 import { pulseQuestions } from "@/lib/pulse-instrument";
-import { pulseWindowOpen } from "@/lib/pulse-window";
+import { isPulseWindowOpen } from "@/lib/pulse-window";
 import { getSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 
@@ -111,7 +111,7 @@ export async function savePulseAnswer(
     return { ok: false, error: "You must be signed in." };
   }
 
-  if (!pulseWindowOpen()) {
+  if (!(await isPulseWindowOpen())) {
     return { ok: false, error: "The window has closed. Your responses are locked." };
   }
 
@@ -187,7 +187,7 @@ export async function submitPulse(): Promise<
     return { ok: false, error: "You must be signed in." };
   }
 
-  if (!pulseWindowOpen()) {
+  if (!(await isPulseWindowOpen())) {
     return { ok: false, error: "The window has closed. Your responses are locked." };
   }
 

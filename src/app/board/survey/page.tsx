@@ -6,7 +6,7 @@ import {
 } from "@/lib/pulse-answers";
 import { pulseSections, questionsForSection } from "@/lib/pulse-instrument";
 import { prisma } from "@/lib/prisma";
-import { pulseWindowOpen } from "@/lib/pulse-window";
+import { isPulseWindowOpen } from "@/lib/pulse-window";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
@@ -33,7 +33,7 @@ export default async function BoardSurveyPage({
     redirect("/");
   }
 
-  if (!pulseWindowOpen()) {
+  if (!(await isPulseWindowOpen())) {
     redirect("/board");
   }
 
