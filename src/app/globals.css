@@ -357,3 +357,133 @@ body::before {
     border-bottom: 1px solid #3a3328;
   }
 }
+
+.gate-aside {
+  margin: 1.6rem 0 0;
+}
+
+.credential-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-input {
+  width: 100%;
+  margin-bottom: 0.4rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.text-input:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+}
+
+.credential-form .field-label {
+  margin-top: 1rem;
+}
+
+.credential-form .primary-btn {
+  margin-top: 1.4rem;
+}
+
+.admin-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  padding: 4rem 4rem 5rem;
+}
+
+.admin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid #3a3328;
+}
+
+.admin-head h1 {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  line-height: 1;
+}
+
+.admin-head .text-btn {
+  margin-top: 0;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.6rem;
+  margin: 2.2rem 0 3rem;
+}
+
+.admin-stats dt {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.admin-stats dd {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display), "Cormorant Garamond", serif;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.admin-stats dd span {
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid #3a3328;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.admin-table th {
+  padding: 1rem 1rem 0.8rem 0;
+  border-bottom: 1px solid #3a3328;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--muted);
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem 0.85rem 0;
+  border-bottom: 1px solid #2a251d;
+  vertical-align: top;
+}
+
+.admin-cell-muted {
+  color: var(--muted);
+}
+
+.admin-flag {
+  color: var(--crimson);
+}
+
+@media (max-width: 900px) {
+  .admin-shell {
+    padding: 2.4rem 1.4rem 3rem;
+  }
+}

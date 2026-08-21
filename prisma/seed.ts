@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "../src/lib/password";
 
 const prisma = new PrismaClient();
+
+const ADMIN_NAME = "EC-Council Administrator";
+const ADMIN_TITLE = "Platform Administrator";
 
 const members: Array<{ name: string; title: string; email: string | null }> = [
   {
@@ -194,6 +198,38 @@ const members: Array<{ name: string; title: string; email: string | null }> = [
   },
 ];
 
+/**
+ * Seeds the administrator from the environment so no credential is committed.
+ * Set ADMIN_EMAIL and ADMIN_PASSWORD in .env; re-running resets the password.
+ */
+async function seedAdmin() {
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!email || !password) {
+    console.warn(
+      "Skipped the admin account: set ADMIN_EMAIL and ADMIN_PASSWORD to seed it.",
+    );
+    return;
+  }
+
+  const passwordHash = await hashPassword(password);
+  const admin = await prisma.advisoryBoardMember.upsert({
+    where: { email },
+    create: {
+      name: ADMIN_NAME,
+      title: ADMIN_TITLE,
+      email,
+      role: "ADMIN",
+      passwordHash,
+    },
+    update: { role: "ADMIN", passwordHash },
+    select: { email: true },
+  });
+
+  console.log(`Admin account ready: ${admin.email}`);
+}
+
 async function main() {
   for (const member of members) {
     await prisma.advisoryBoardMember.upsert({
@@ -211,14 +247,18 @@ async function main() {
     });
   }
 
-  const count = await prisma.advisoryBoardMember.count();
+  const count = await prisma.advisoryBoardMember.count({
+    where: { role: "MEMBER" },
+  });
   const withEmail = await prisma.advisoryBoardMember.count({
-    where: { email: { not: null } },
+    where: { role: "MEMBER", email: { not: null } },
   });
 
   console.log(
     `Seeded ${count} advisory board members (${withEmail} with email).`,
   );
+
+  await seedAdmin();
 }
 
 main()

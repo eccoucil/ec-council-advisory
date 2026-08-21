@@ -4,11 +4,20 @@ import { SignJWT, jwtVerify } from "jose";
 export const SESSION_COOKIE = "ecc_board_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
+/** Mirrors the Prisma `MemberRole` enum, declared locally so the proxy does
+ * not have to pull the Prisma client into its bundle. */
+export type SessionRole = "MEMBER" | "ADMIN";
+
 export type Session = {
   memberId: number;
   name: string;
   email: string;
+  role: SessionRole;
 };
+
+export function homeForRole(role: SessionRole) {
+  return role === "ADMIN" ? "/admin" : "/board";
+}
 
 function getSecret() {
   const secret = process.env.AUTH_SECRET;
@@ -22,6 +31,7 @@ export async function createSession(session: Session) {
   const token = await new SignJWT({
     name: session.name,
     email: session.email,
+    role: session.role,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(String(session.memberId))
@@ -56,12 +66,15 @@ export async function readSessionToken(
     const memberId = Number(payload.sub);
     const name = typeof payload.name === "string" ? payload.name : "";
     const email = typeof payload.email === "string" ? payload.email : "";
+    // Tokens issued before roles existed carry no claim; the safe reading is
+    // the unprivileged one.
+    const role: SessionRole = payload.role === "ADMIN" ? "ADMIN" : "MEMBER";
 
     if (!Number.isInteger(memberId) || memberId < 1 || !email) {
       return null;
     }
 
-    return { memberId, name, email };
+    return { memberId, name, email, role };
   } catch {
     return null;
   }

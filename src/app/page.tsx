@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { MemberAccess } from "@/components/member-access";
 
 export default async function Home() {
   const members = await prisma.advisoryBoardMember.findMany({
+    where: { role: "MEMBER" },
     select: { id: true, name: true, title: true },
     orderBy: { name: "asc" },
   });
@@ -34,6 +36,11 @@ export default async function Home() {
 
       <section className="gate-access">
         <MemberAccess members={members} />
+        <p className="gate-aside">
+          <Link className="text-btn" href="/admin/login">
+            Administrator access
+          </Link>
+        </p>
       </section>
     </main>
   );

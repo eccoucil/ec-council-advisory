@@ -18,7 +18,7 @@ import {
   OTP_TTL_MS,
 } from "@/lib/otp";
 import { prisma } from "@/lib/prisma";
-import { createSession, destroySession } from "@/lib/session";
+import { createSession, destroySession, getSession } from "@/lib/session";
 
 export type BindMemberResult =
   | { ok: true; name: string; title: string }
@@ -38,7 +38,7 @@ async function memberFromAccessIntent() {
 
   return prisma.advisoryBoardMember.findUnique({
     where: { id: intent.memberId },
-    select: { id: true, name: true, title: true, email: true },
+    select: { id: true, name: true, title: true, email: true, role: true },
   });
 }
 
@@ -49,10 +49,12 @@ export async function bindMember(memberId: number): Promise<BindMemberResult> {
 
   const member = await prisma.advisoryBoardMember.findUnique({
     where: { id: memberId },
-    select: { id: true, name: true, title: true },
+    select: { id: true, name: true, title: true, role: true },
   });
 
-  if (!member) {
+  // Administrators hold a password and sign in at /admin/login; they are not
+  // part of the seated roster the OTP gate serves.
+  if (!member || member.role !== "MEMBER") {
     return { ok: false, error: "That board member could not be found." };
   }
 
@@ -62,7 +64,7 @@ export async function bindMember(memberId: number): Promise<BindMemberResult> {
 
 export async function requestOtp(): Promise<RequestOtpResult> {
   const member = await memberFromAccessIntent();
-  if (!member) {
+  if (!member || member.role !== "MEMBER") {
     return { ok: false, error: "Select your name from the board list." };
   }
 
@@ -129,7 +131,7 @@ export async function verifyOtp(code: string): Promise<VerifyOtpResult> {
 
   const member = await memberFromAccessIntent();
   const email = member?.email?.trim().toLowerCase();
-  if (!member || !email) {
+  if (!member || !email || member.role !== "MEMBER") {
     return { ok: false, error: "This access request is no longer valid." };
   }
 
@@ -198,13 +200,15 @@ export async function verifyOtp(code: string): Promise<VerifyOtpResult> {
     memberId: member.id,
     name: member.name,
     email,
+    role: member.role,
   });
 
   redirect("/board");
 }
 
 export async function signOut() {
+  const session = await getSession();
   await clearAccessIntent();
   await destroySession();
-  redirect("/");
+  redirect(session?.role === "ADMIN" ? "/admin/login" : "/");
 }
