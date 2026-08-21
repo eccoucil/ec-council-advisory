@@ -294,7 +294,8 @@ export const pulseQuestions: PulseQuestionSeed[] = [
     code: "1.5",
     sortOrder: 5,
     type: "TEXT",
-    prompt: "Biggest gap or concern in the ADG V1 → ADG V2 direction.",
+    prompt:
+      "Which AI governance and compliance pain points are you facing today — which of them does ADG V2 cover, and which does it miss? Keep to general industry terms: no internal systems, architecture, data flows or IP.",
     required: false,
   },
   ...productBlock(2, "s2"),
