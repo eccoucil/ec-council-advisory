@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { assertDeliverable } from "@/lib/email-allowlist";
 
 type AccessCodeEmail = {
   to: string;
@@ -37,6 +38,10 @@ function fromAddress() {
 }
 
 export async function sendAccessCodeEmail({ to, name, code }: AccessCodeEmail) {
+  // Before the key check: the console fallback prints the code to the log, which
+  // is a disclosure path of its own, so the allowlist gates that route too.
+  await assertDeliverable(to);
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     const failure = deliveryUnavailable(`access code for ${to}: ${code}`);
@@ -73,6 +78,8 @@ export async function sendPulseReminderEmail({
   closesAt,
   url,
 }: ReminderEmail) {
+  await assertDeliverable(to);
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     const failure = deliveryUnavailable(`reminder for ${to} (${name})`);
@@ -94,6 +101,26 @@ export async function sendPulseReminderEmail({
   if (error) {
     throw new Error(error.message);
   }
+}
+
+function logoUrl() {
+  const base =
+    process.env.APP_URL?.replace(/\/+$/, "") || "http://localhost:3000";
+  return `${base}/ec-council-logo.jpg`;
+}
+
+/**
+ * Mail clients block remote images by default far more often than browsers do,
+ * so the alt text carries the same styling the old text wordmark had: when the
+ * image is suppressed the header still reads "EC-Council" in the right colour
+ * rather than collapsing to a broken-image icon.
+ *
+ * The asset is 1527x801 and sits on a white ground, which matches the card
+ * behind it, so no transparency is needed. Width and height are given as
+ * attributes as well as styles because Outlook ignores the latter.
+ */
+function renderLogo() {
+  return `<img src="${escapeHtml(logoUrl())}" width="150" height="79" alt="EC-Council" style="display:block;border:0;outline:none;text-decoration:none;width:150px;height:79px;margin:0 0 10px;-ms-interpolation-mode:bicubic;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#9F1D1D;" />`;
 }
 
 function renderReminderEmail(name: string, closesAt: string, url: string) {
@@ -118,9 +145,7 @@ function renderReminderEmail(name: string, closesAt: string, url: string) {
             </tr>
             <tr>
               <td style="padding:32px 40px 12px;font-family:Georgia,'Times New Roman',serif;">
-                <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#9F1D1D;">
-                  EC-Council
-                </p>
+                ${renderLogo()}
                 <p style="margin:0;font-size:22px;line-height:1.3;color:#1A1916;">
                   Artificial Intelligence Advisory Board
                 </p>
@@ -206,9 +231,7 @@ function renderAccessCodeEmail(name: string, code: string) {
             </tr>
             <tr>
               <td style="padding:32px 40px 12px;font-family:Georgia,'Times New Roman',serif;">
-                <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#9F1D1D;">
-                  EC-Council
-                </p>
+                ${renderLogo()}
                 <p style="margin:0;font-size:22px;line-height:1.3;color:#1A1916;">
                   Artificial Intelligence Advisory Board
                 </p>
