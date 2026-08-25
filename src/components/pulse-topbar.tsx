@@ -1,11 +1,12 @@
 import { signOut } from "@/app/actions/auth";
 import { memberInitials, memberShortName } from "@/lib/member-display";
+import { EcCouncilLogo } from "@/components/ec-council-logo";
 
 export function PulseTopbar({ name }: { name: string }) {
   return (
     <header className="pulse-topbar">
       <div className="pulse-brand">
-        <span className="pulse-mark">EC-Council</span>
+        <EcCouncilLogo height={26} />
         <span className="pulse-sep" aria-hidden />
         <span className="pulse-product">Board Pulse</span>
       </div>

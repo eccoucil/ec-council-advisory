@@ -53,9 +53,10 @@ body {
   position: relative;
   overflow: hidden;
   padding: 56px 64px;
-  background:
-    linear-gradient(180deg, rgba(200, 16, 46, 0.06), transparent 42%),
-    var(--paper);
+  /* Flat white: the logo is a JPEG on a white ground and sat in the strongest
+     part of the old crimson wash, which framed it in a visible pale box. The
+     grey --canvas on the right plus this rule still separate the columns. */
+  background: var(--paper);
   border-right: 1px solid var(--rule);
 }
 
@@ -124,27 +125,22 @@ body {
   gap: 12px;
 }
 
-.gate-mark {
-  display: flex;
-  width: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  background: var(--crimson);
-  color: var(--paper);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+/*
+ * The logo ships as a JPEG on a white ground. `multiply` drops that white into
+ * whatever sits behind it, so no pale box shows against the gate's faint red
+ * wash. The box itself comes from EcCouncilLogo's height prop, so nothing here
+ * overrides width or height and the aspect ratio stays intact.
+ */
+.ec-logo {
+  mix-blend-mode: multiply;
 }
 
-.gate-wordmark {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.gate-logo-rule {
+  width: 1px;
+  height: 22px;
+  background: var(--rule);
 }
 
-.gate-org,
 .gate-unit,
 .gate-restricted,
 .gate-eyebrow,
@@ -159,10 +155,6 @@ body {
   font-weight: 700;
   letter-spacing: 1.6px;
   text-transform: uppercase;
-}
-
-.gate-org {
-  color: var(--ink);
 }
 
 .gate-unit,
@@ -817,13 +809,6 @@ body {
   gap: 14px;
 }
 
-.pulse-mark {
-  color: #c4122f;
-  font-family: var(--font-pulse-mono), "IBM Plex Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-}
 
 .pulse-sep {
   width: 1px;

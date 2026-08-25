@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { EcCouncilLogo } from "@/components/ec-council-logo";
 
 type AccessGateProps = {
   figure: string;
@@ -30,13 +31,9 @@ export function AccessGate({
 
         <header className="gate-brand">
           <div className="gate-logo">
-            <div className="gate-mark" aria-hidden>
-              EC
-            </div>
-            <div className="gate-wordmark">
-              <span className="gate-org">EC-Council</span>
-              <span className="gate-unit">AI Advisory Board</span>
-            </div>
+            <EcCouncilLogo height={42} priority />
+            <span className="gate-logo-rule" aria-hidden />
+            <span className="gate-unit">AI Advisory Board</span>
           </div>
           <div className="gate-restricted">
             <span className="gate-restricted-dot" aria-hidden />

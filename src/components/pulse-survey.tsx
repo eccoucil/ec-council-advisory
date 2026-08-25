@@ -33,6 +33,7 @@ import {
   type PulseSectionMeta,
 } from "@/lib/pulse-instrument";
 import { memberInitials, memberShortName } from "@/lib/member-display";
+import { EcCouncilLogo } from "@/components/ec-council-logo";
 
 type SaveStatus = "saved" | "saving" | "error";
 
@@ -189,7 +190,7 @@ export function PulseSurvey({
     <div className="pulse-survey">
       <header className="pulse-survey-topbar">
         <div className="pulse-brand">
-          <span className="pulse-mark">EC-Council</span>
+          <EcCouncilLogo height={26} />
           <span className="pulse-sep" aria-hidden />
           <span className="pulse-product">Board Pulse</span>
         </div>

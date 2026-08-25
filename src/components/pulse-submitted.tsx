@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { memberInitials, memberShortName } from "@/lib/member-display";
+import { EcCouncilLogo } from "@/components/ec-council-logo";
 
 export type GlanceRow = {
   num: string;
@@ -32,7 +33,7 @@ export function PulseSubmitted({
     <div className="pulse-page">
       <header className="pulse-survey-topbar">
         <div className="pulse-brand">
-          <span className="pulse-mark">EC-Council</span>
+          <EcCouncilLogo height={26} />
           <span className="pulse-sep" aria-hidden />
           <span className="pulse-product">Board Pulse</span>
         </div>
