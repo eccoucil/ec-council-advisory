@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "../src/generated/prisma";
 import { hashPassword } from "../src/lib/password";
 import { pulseQuestions } from "../src/lib/pulse-instrument";
+import { PULSE_WINDOW_ID } from "../src/lib/pulse-window";
 import { reviewQuestions } from "./questions";
 
 const prisma = new PrismaClient();
@@ -12,186 +13,177 @@ const members: Array<{ name: string; title: string; email: string | null }> = [
   {
     name: "Aaron Stark",
     title: "Head of AI Developer Platform Solutions & Agentic DevOps (DX)",
-    email: null,
+    email: "aaronstark@microsoft.com",
   },
   {
     name: "Chandra Donelson",
     title: "Strategic Advisor for HR IT Modernization, Analytics, and AI",
-    email: null,
+    email: "contact@thedatadetective.org",
   },
   {
     name: "Anish Mitra",
     title: "Director",
-    email: null,
+    email: "anishmitra@kpmg.com",
   },
   {
     name: "Lewis V. Adams",
     title: "Vice President | Enterprise AI & Capital Productivity Transformation",
-    email: null,
+    email: "ladams@lewisvadams.com",
   },
   {
     name: "Kathy Baxter",
     title: "VP / Principal Architect, Responsible AI & Tech",
-    email: null,
+    email: "kbaxter@salesforce.com",
   },
   {
     name: "ShanShan Pa",
     title: "Global Head of AI & Data Governance",
-    email: null,
+    email: "shanshan.pa@globallogic.com",
   },
   {
     name: "Edoardo Tealdi",
-    title:
-      "Executive Head of AI Transformation - Business Engagement and Growth Units",
-    email: null,
+    title: "Executive Head of AI Transformation - Business Engagement and Growth Units",
+    email: "edoardo.tealdi@nttdata.com",
   },
   {
     name: "Raji Bhimireddy",
     title: "Vice President Cloud, AI, Architecture, FInOps & Business Value",
-    email: null,
+    email: "bheemireddi@gmail.com",
   },
   {
     name: "Jaya Kandaswamy",
     title: "Senior Vice President, Product, AI, and Innovation",
-    email: null,
+    email: "jkandas@gmail.com",
   },
   {
     name: "Vasant J Chandra",
     title: "Vice President, Agentic Advisory",
-    email: null,
+    email: "vasantjchandra@gmail.com",
   },
   {
     name: "Adam Spearing",
     title: "VP of AI GTM EMEA",
-    email: null,
+    email: "adam.spearing@servicenow.com",
   },
   {
     name: "George Nassar",
     title: "Principal Consultant",
-    email: null,
+    email: "g_nassar@yahoo.com",
   },
   {
     name: "Anita Lacea",
     title: "Head of AI Transformation, Azure Hardware Infrastructure",
-    email: null,
+    email: "alacea@gmail.com",
   },
   {
     name: "Pavan Kristipati",
-    title:
-      "Head of AI Engineering & Transformation (SVP Scope) | Enterprise AI Adoption, Governance & Platform",
-    email: null,
+    title: "Head of AI Engineering & Transformation (SVP Scope) | Enterprise AI Adoption, Governance & Platform",
+    email: "pavan.kristipati@gmail.com",
   },
   {
     name: "Mark Ritcey",
     title: "Vice President, AI & Automation Delivery",
-    email: null,
+    email: "mritcey@outlook.com",
   },
   {
     name: "Sophia Katrenko",
     title: "VP of AI/ML",
-    email: null,
+    email: "sophia.katrenko@gmail.com",
   },
   {
     name: "Andrei Son",
     title: "Head of AI Transformation",
-    email: null,
+    email: "andrei.son@aumovio.com",
   },
   {
     name: "Madhur Mayank Sharma",
-    title:
-      "Vice President, AI Product Engineering & Global Head of AI Services & Accelerator",
-    email: null,
+    title: "Vice President, AI Product Engineering & Global Head of AI Services & Accelerator",
+    email: "madhur.mayank@gmail.com",
   },
   {
     name: "Dr. Sayed Peerzade",
     title: "Executive Vice President - Cloud, AI & Government Initiatives",
-    email: null,
+    email: "sayed1.peerzade@ril.com",
   },
   {
     name: "Naveen Upadhyay",
-    title:
-      "Vice President, AI/ML Product Management – Machine Learning & Intelligence Operations",
-    email: null,
+    title: "Vice President, AI/ML Product Management – Machine Learning & Intelligence Operations",
+    email: "naveen21u@gmail.com",
   },
   {
     name: "Vineet Gandhi",
     title: "Group Vice President - AI Product Management",
-    email: null,
+    email: "vineetgandhi@gmail.com",
   },
   {
     name: "Yashwinder Chhikara",
     title: "Sr. Vice President - AI, Analytics, and Product Management",
-    email: null,
+    email: "yashwinder.chhikara@isonxperiences.com",
   },
   {
     name: "Parikshit Nag",
     title: "Group Head of Artificial Intelligence & Machine Learning",
-    email: null,
+    email: "parikshitnag@live.com",
   },
   {
     name: "Mohsin Khan",
     title: "Head of AI & Automation Hub",
-    email: null,
+    email: "messagemohsin@gmail.com",
   },
   {
     name: "Jami Kiran",
     title: "Executive Vice President- Innovation & Transformation",
-    email: null,
+    email: "jklife2010@gmail.com",
   },
   {
     name: "Sudarson Roy Pratihar",
     title: "Founder and Principal",
-    email: null,
+    email: "sudarson@a2iqx.com",
   },
   {
     name: "Sanjoy K Saha",
     title: "Head of AI Portfolio and Governance & Chief of Staff CDAO",
-    email: null,
+    email: "sanjoysaha70@gmail.com",
   },
   {
     name: "Raghunandan Mishra",
     title: "Vice President, Agentic AI Platform Engineering",
-    email: null,
+    email: "raghumish@gmail.com",
   },
   {
     name: "Lily Rachmawati",
     title: "Director, Head of Applied AI",
-    email: null,
+    email: "rachmawati.lily@gmail.com",
   },
   {
     name: "Dinesh Bhogle",
     title: "Head of AI/ML platform",
-    email: null,
+    email: "bhogled@bv.com",
   },
   {
     name: "Pandiyan Adiyapatham",
     title: "Head of Generative AI, Cognizant Bluebolt, BU CIO, P&L Head",
-    email: null,
+    email: "pandiyan.adiyapatham@gmail.com",
   },
   {
-    name: "Karthik S.",
+    name: "Karthik Raghuram Sundar",
     title: "AI Practice Lead",
-    email: null,
+    email: "karthik.sundar@eccouncil.org",
   },
   {
     name: "Malik Hussain",
     title: "AI Enablement Lead, Data & AI Academy",
-    email: null,
+    email: "malik_hussain@mail.harvard.edu",
   },
   {
     name: "Oscar Jarabo",
     title: "Global Head of AI Product & Strategy",
-    email: null,
+    email: "ojarabo@proton.me",
   },
   {
     name: "Dr Vinod Ebinezer",
     title: "Head of Explainable AI & Automation",
-    email: null,
-  },
-  {
-    name: "Sruthi Pakanati",
-    title: "Head of AI & Data Transformation, National Quality & Risk",
-    email: null,
+    email: "vinod.ebinezer@qdtanalytics.com",
   },
   {
     name: "Viknesh Krishnan",
@@ -299,11 +291,26 @@ async function main() {
     });
   }
 
+  // The singleton that records a manual close. `update: {}` is deliberate: a
+  // re-seed must never reopen a window an administrator has already closed.
+  await prisma.pulseWindow.upsert({
+    where: { id: PULSE_WINDOW_ID },
+    create: { id: PULSE_WINDOW_ID, closedAt: null, closedBy: null },
+    update: {},
+  });
+
   const questionCount = await prisma.reviewQuestion.count();
   const pulseCount = await prisma.pulseQuestion.count();
+  const window = await prisma.pulseWindow.findUnique({
+    where: { id: PULSE_WINDOW_ID },
+    select: { closedAt: true },
+  });
 
   console.log(
     `Seeded ${count} advisory board members (${withEmail} with email), ${questionCount} review questions, and ${pulseCount} pulse questions.`,
+  );
+  console.log(
+    `Pulse window: ${window?.closedAt ? `closed ${window.closedAt.toISOString()}` : "open"}.`,
   );
 
   await seedAdmin();
